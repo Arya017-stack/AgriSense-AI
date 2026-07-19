@@ -17,7 +17,7 @@ reader = None
 def get_reader():
     global reader
     if reader is None:
-        reader = easyocr.Reader(['en'], gpu=False, model_storage_directory='/tmp/easyocr_models')
+        reader = easyocr.Reader(['en'], gpu=False)
     return reader
 
 app =Flask(__name__)
@@ -258,7 +258,7 @@ def upload_receipt():
             start = time.time()
 
             result_raw = get_reader().readtext(filepath, detail=1)
-            
+
             extracted_text = "\n".join([r[1] for r in result_raw])
             ocr_confidences = [r[2] for r in result_raw]
             avg_ocr_confidence = (sum(ocr_confidences) / len(ocr_confidences)) * 100 if ocr_confidences else 0
