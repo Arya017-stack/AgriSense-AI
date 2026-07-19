@@ -1,0 +1,508 @@
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name ="viewport" content="width=device-width, initial-scale=1.0">
+                <title> AgriSense AI </title>
+                <link rel="stylesheet" href="../css/style.css">
+            </head>
+            <body>
+
+                <header>
+                    <nav class = "navbar">
+                        <div class = "logo">
+                            <span class = "logo-icon">🌾</span>
+                            <h2>Agrisense-AI</h2> 
+                        </div>
+
+                        <ul class = "nav-links">
+                            <li><a href ="#features">Features</a></li>
+                            <li><a href="#workflow">How it Works</a></li>
+                            <li><a href="#dashboard">Dashboard</a></li>
+
+                        </ul>
+                        <div class="nav-buttons">
+                            <a href="#uploadSection" class="login-btn">Login</a>
+                            <a href="#uploadSection" class="start-btn">Get Started</a>
+                        </div>
+                    </nav>
+
+                </header>
+                <section id ="home" class="hero">
+                    <div class="hero-left">
+                        <span class="hero-badge">🌾 AI Powered Farm Intelligence</span>
+                        <h1> Know Every Harvest
+                            <br>
+                            Before It Leaves 
+                            <span>Your Farm.</span>
+                        </h1>
+                        <p>
+                        AgriSense automatically tracks harvest records,
+                            detects missing payments, estimates profit,and gives farmers complete transparency without visiting the mandi or sugar mill.
+                        </p>
+
+                        <div class="hero-buttons">
+                            <a href="#uploadSection" class="start-btn">Try Live Demo</a>
+                            <a href="#dashboardSection" class="learn-btn">Explore Dashboard</a>
+                        </div>
+
+                        <div class = "hero-stats">
+                            <div class="stat-box">
+                                <h3> 98%</h3>
+                                <span>Prediction Accuracy</span>
+                            </div>
+
+                            <div class ="stat-box">
+                                <h3>
+                                    24/7 
+                                </h3>
+                                <span>
+                                    AI Monitoring 
+                                </span>
+                            </div>
+                            <div class ="stat-box">
+                                <h3>5+</h3>
+                                <span>Crop Types</span>
+                        </div>
+                        </div>
+                    </div>
+                    <div class = "hero-right">
+                        <div class = "dashboard-card">
+                            <div class="card-header">
+                                <div class ="profile">
+                                    <div class ="profile-circle"></div>
+                                    <div>
+                                        <h4>Farm Dashboard</h4>
+                                        <span>Live AI Analysis</span>
+                                    </div>
+
+                                </div>
+                                <span class ="status">
+                                    ● Online
+                                </span>
+                            </div>
+                        <div class ="income-card">
+                            <p>Total Revenue</p>
+                            <h2>₹2,48,650</h2>
+                            <span class = "profit"> 
+                                ↑ +12% This Season
+                            </span>
+                        </div>
+                        <div class = "dashboard-grid">
+                            <div class="mini-card">
+                                <h3>🌾 Sugarcane</h3>
+                                <p>52 Tons Delivered</p>
+                            </div>
+                            <div class="mini-card">
+                                <h3>Pending</h3>
+                                <p>₹18,500</p>
+                            </div>
+                           <div class="mini-card" id="weatherCard">
+
+                                <h3>🌦 AI Weather</h3>
+
+                                <p id="weatherTemp">🌡 Loading...</p>
+
+                                <p id="weatherHumidity">💧 Loading...</p>
+
+                                <p id="weatherRain">🌧 Loading...</p>
+
+                                <hr>
+
+                                <p id="cropSuggestion">
+                                    🌾 AI Recommendation Loading...
+                                </p>
+
+                            </div>
+                            <div class="mini-card">
+                                <h3>🤖 AI Alert</h3>
+                                <p>Payment Missing</p>
+                            </div>
+                        </div>
+                        </div>
+                        </div>
+                </section>
+
+                <section id="features" class="features">
+                    <div class="section-title">
+                        <span class="section-badge">
+                            ✨ Powerful Features
+                        </span>
+                        <h2>Everything Your Farm Needs <br> Powered By AI</h2>
+                        <p>
+                            AgriSense helps farmers digitize harvest records,
+                            monitor payments and gain AI-powered insights from
+                            every crop transaction
+                        </p>
+                    </div>
+
+                    <div class = "features-grid">
+
+                        <div class="feature-card">
+                            <div class="feature-icon">📄</div>
+                            <h3>Receipt Scanner</h3>
+                            <p>Upload sugar mill or mandi receipts and let AI extract every important detail automatically.</p>
+                        </div>
+
+                        <div class="feature-card">
+                        <div class="feature-icon">🤖</div>
+                            <h3>AI Analysis</h3>
+                            <p>AI detects crop name,quantity, payment amount and delivery date instantly. </p>
+                        </div>
+
+                        <div class="feature-card">
+                            <div class="feature-icon">💰</div>
+                            <h3>Revenue Tracking</h3>
+                            <p>
+                                Keep track of received payments,
+                                pending dues and total earnings..</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <div class="feature-icon">🌾</div>
+                            <h3>Crop Records</h3>
+                            <p>Store all crop history digitally for easy access anytime</p>
+                        </div>
+
+                    <div class="feature-card">
+                            <div class="feature-icon">📈</div>
+                            <h3>Profit Analytics</h3>
+                            <p>View seasonal profit trends, harvest reports and growth insights.</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <div class="feature-icon">☁️</div>
+                            <h3>Weather Ready</h3>
+                            <p>Upcoming weather integration to help farmers plan smarter.</p>
+                        </div>
+                    </div>
+                </section>
+                <section id="workflow" class="workflow">
+
+                    <div class = "section-title">
+                        <span class="section-badge">
+                            ⚙️ How It Works
+                        </span>
+                        <h2>From Receipt To AI Insights<br> In Just Four Simple Steps</h2>
+                        <p>
+                        AgriSense converts every harvest receipt into useful records, payment tracking and AI-powered farm analytics automatically.
+                        </p>
+                    </div>
+                    <div class = "workflow-container">
+                        
+                        <div class = "workflow-card">
+                            <div class="step-number">01</div>
+                            <div class = "workflow-icon">📄</div>
+                            <h3> Upload Receipt </h3>
+
+                            <p>
+                                Upload a sugar mill or mandi receipt directly from your phone.
+                            </p>
+                        </div>
+                    <div class = "workflow-arrow">➡️</div>
+                        <div class = "workflow-card">
+                            <div class = "step-number">02</div>
+                            
+                            <div class = "workflow-icon">🤖</div>
+                            
+                            <h3>AI Processing</h3>
+                            <p>
+                            AI extracts crop details, quantity, payment amount and dates automatically from the receipt.
+                            </p>
+                        </div>
+                        <div class="workflow-arrow">➡️</div>
+                        <div class = "workflow-card">
+                            <div class = "step-number">03</div>
+                            <div class = "workflow-icon">📊</div>
+                            <h3>Dashboard Updates</h3>
+                            <p>
+                                All harvest records are organized into your smart dashboard instantly.
+                            </p>
+                        </div>
+                        <div class="workflow-arrow">➡️</div>
+                        <div class = "workflow-card">
+                            <div class = "step-number">04</div>
+                            <div class = "workflow-icon">💰</div>
+                            <h3>Smart Insights</h3>
+                            <p>
+                                View profit reports,pending payment and AI recommendations.
+                            </p>
+                        </div>
+                    </div>
+                </section>  
+                <section id="dashboardSection" class="dashboard-preview">
+                
+                <div class="section-title">
+                    <div class="section-badge">📊Smart Dashboard</div>
+                        <h2>your Farm Data<br> In One Dashboard</h2>
+                        <p>
+                            Monitor Harvest, payments crop performance and AI insights from one simple sadhboard designed for every farmer.
+                        </p>
+                    </div>
+
+                    <div class="preview-container">
+
+                        <div class = "preview-left">
+
+                            <div class = "preview-card">
+                                <h3>🌾 Harvest Records</h3>
+                                <p id="totalReceipts">0 Receipts</p>
+                            </div>
+                            
+                            <div class = "preview-card">
+                                <h3>💰 Pending Payments</h3>
+                                <p id="latestPayment">N/A</p>
+                            </div>
+                        
+                            <div class = "preview-card">
+                                <h3>📈 Total Profit</h3>
+                                <p>+12% This Season</p>
+                            </div>
+                        </div> 
+                        <div class="preview-center">
+
+                            <div class="dashboard-screen">
+
+                                <div class="screen-header">
+                                    <span>AgriSense Dashboard</span>
+                                    <span class = "live-dot">● Live</span>
+                                </div>
+                                <div class="graph-box">
+                                    📊 Profit Analytics
+                                </div>
+                                <div class ="graph-stats">
+                                    <div>
+                                        <h3 id="totalRevenue">KES 0</h3>
+                                        <p>Total Revenue</p>
+                                        </div>
+                                    <div>
+                                        <h3>98%</h3>
+                                        <p>AI Accuracy</p>
+                                    </div>
+                                </div>  
+                        </div>
+                    </div>
+                    <div class="preview-right">
+
+                        <div class="preview-card">
+                            <h3>🤖 AI Alerts</h3>
+                            <p id="aiAlert">No Alerts</p>
+                        </div>
+                        <div class="preview-card">
+                            <h3>☁️ Weather</h3>
+                            <p>Light Rain Tomorrow</p>
+                        </div>
+                        <div class="preview-card">
+                            <h3>📄 Crop History</h3>
+                            <p>All Records Safe </p>
+                        </div>
+                    </div>
+                </section>
+                <section id="testimonials" class="testimonials">
+
+                    <div class="section-title">
+                        <span class="section-badge">
+                            ⭐ Success Stories
+                        </span>
+                        <h2> Trusted By Farmers Across India</h2>
+                        <p>
+                            Farmers use AgriSense AI everyday to manage harvest records,track payents and make smarter farming decisions.
+                        </p>
+                    </div>
+                    <div class="testimonial-grid">
+                        <div class="testimonial-card">
+                            <div class="testimonial-top">
+                                <div class="user-avatar">👨‍🌾</div>
+                                <div>
+                                    <h3>Ramesh Kumar</h3>
+                                    <span>Sugarcane Farmer</span>
+                                </div>
+                            </div>
+                            <p>
+                                AgrSense helped me track every paryment from the sugar mill.
+                                I no longer worry about missing records.
+                            </p>
+                            <div class="rating">
+                                ⭐⭐⭐⭐⭐
+                            </div>
+                        </div>
+                        <div class="testimonial-card">
+                            <div class="testimonial-top">
+                                <div class="user-avatar">👩‍🌾</div>
+                                <div>
+                                    <h3>Sunita Devi</h3>
+                                    <span> Wheat Farmer</span>
+                                </div>
+                            </div>
+                            <p>
+                                The Ai reciept scanner saves hours or manual work.
+                                Everythin becomes digital in seconds.
+                            </p>
+                            <div class="rating">
+                                ⭐⭐⭐⭐⭐
+                            </div>
+                        </div>
+                        <div class="testimonial-card">
+                            <div class="testimonial-top">
+                                <div class="user-avatar">🚜</div>
+                                <div>
+                                    <h3>Mahesh Singh</h3>
+                                    <span>Farm Owner</span>
+                                </div>
+                            </div>
+                            <p>
+                                The dashboard gives a complete picture of my harvest, revenue and pending pay,ments in one place.
+                            </p>
+                            <div class="rating"> ⭐⭐⭐⭐⭐
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+            <section id="contact" class="cta">
+
+                <div class="cta-box">
+                    <span class="section-badge">
+                        🚀 Get Started Today
+                    </span>
+                    <h2>
+                        Ready To Transform<br>
+                        Your Farming Journey?
+                    </h2>
+                    <p>
+                        Join thousands of farmers using AgriSense AI to digitize harvest
+                        records, track payments and gain powerful AI-driven insights.
+                    </p>
+                    <div class="cta-buttons">
+                        <a href="" class="start-btn">Start Free</a>
+                        <a href="" class="learn-btn">Book Demo</a>
+                    </div>
+                </div>
+
+            </section>
+            <section id="uploadSection" class="upload-section">
+
+                <div class="upload-card">
+
+                    <div class="upload-area" id="uploadArea">
+
+                        <div id="uploadPlaceholder">
+                            <div class="upload-icon">📄</div>
+                            <h3>Select Receipt</h3>
+                            <p>PNG, JPG or JPEG</p>
+                        </div>
+
+                        <div id="previewContainer"></div>
+
+                    </div>
+
+                    <button type="button" id="removeBtn">
+                        ✕
+                    </button>
+                    <input
+                        type="file"
+                        id="receiptInput"
+                        accept="image/*"
+                        hidden
+                    >
+
+                    <p id="fileName"></p>
+
+                    <button type="button" id="uploadBtn" disabled>
+                        Upload Receipt
+                    </button>
+
+                    <div id="resultBox" class="result-box" style="display:none;">
+                        <h3 class="result-title">📄 Extracted Details</h3>
+
+                        <div class="detected-grid" id="detectedGrid"></div>
+
+                        <div id="aiSummary" class="ai-summary"></div>
+
+                    
+                        <div id="aiRecommendation" class ="ai-summary"></div>
+
+                        <div id="aiConfidence" class="ai-summary"></div>
+
+                        <h4 class="raw-title">Full OCR Text</h4>
+
+                        <pre id="rawText" class="raw-text"></pre>
+
+                        <div id ="aiAlerts" class ="ai-alerts"></div>
+                    </div>
+
+                    <p id="status"></p>
+
+                </div>
+
+            </section>
+
+            <section class="history-section">
+
+                    <h2>📄 Receipt History</h2>
+
+                    <table class="history-table">
+
+                        <thead>
+                            <tr>
+                                <th>Receipt</th>
+                                <th>Amount</th>
+                                <th>Payment</th>
+                                <th>Date</th>
+                                <th>Crop</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="historyBody">
+
+                        </tbody>
+
+                    </table>
+
+                </section>
+            <footer class="footer">
+                <div class="footer-container">
+
+                    <div class="footer-about">
+                        <div class="logo">
+                            <span class="logo-icon">🌾</span>
+                            <h2>AgriSense AI </h2>
+                        </div>
+                        <p>
+                            Empowering farmers with AI-powered harverst tracking, payment monitoring and smart farm insights.
+                        </p>
+                    </div>
+                    <div class="footer-links">
+                        <h3>Quick Links</h3>
+                        <ul>
+                            <li><a href ="#">Home</a></li>
+                            <li><a href ="#">Features</a></li>
+                            <li><a href ="#">How It Works</a></li>
+                            <li><a href ="#">Dashboard</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-links">
+                        <h3>Resources</h3>
+                        <ul>
+                            <li><a href ="#">Pirvacy Policy</a></li>
+                            <li><a href ="#">Terms & Conditions</a></li>
+                            <li><a href ="#">Suport</a></li>
+                            <li><a href ="#">FAQs</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-contact">
+                        <h3>Contact</h3>
+                        <p>📧 support@agrisenseai.com </p>
+                        <p>📱 +91 82187 89302 </p>
+                        <p>📍 Haridwar, Uttarakhand</p>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>
+                        © 2026 AgriSense AI. All Rights Reserved.
+                    </p>
+                </div>
+            </footer>
+        <script src="../javascript/script.js"></script>
+     </body>
+    </html>
