@@ -1,6 +1,6 @@
 import sqlite3
 
-DB_NAME = r"C:\AgriSenseUploads\database.db"
+DB_NAME = "database.db"
 
 def get_connection():
     conn = sqlite3.connect(DB_NAME)

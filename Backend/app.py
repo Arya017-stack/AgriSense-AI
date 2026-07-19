@@ -18,8 +18,8 @@ app =Flask(__name__)
 CORS(app)
 create_table()
 
+UPLOAD_FOLDER = "uploads"
 
-UPLOAD_FOLDER = r"C:\AgriSenseUploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 app.config["UPLOAD_FOLDER"] =UPLOAD_FOLDER
@@ -356,5 +356,5 @@ print("========== ROUTES ==========")
 for rule in app.url_map.iter_rules():
         print(rule)
 
-if __name__ =="__main__":
-    app.run(debug=True, use_reloader=False)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
