@@ -118,9 +118,9 @@ uploadBtn.addEventListener('click', async (e) => {
     console.log('3 - Response received');
 
     const result = await response.json();
-    
+
     if (!response.ok) {
-      throw new Error('Server returned status ' + response.status);
+      throw new Error(result.error || ('Server returned status' + response.status));
     }
 
     
@@ -350,9 +350,12 @@ async function loadDashboard() {
         "₹" + Number(data.pending_amount).toLocaleString("en-IN");
 
     document.getElementById("heroAlert").innerText =
-        data.pending_receipts > 0
-            ? `⚠ ${data.pending_receipts} Payments Pending`
+    data.pending_receipts > 0
+        ? `⚠ ${data.pending_receipts} Payments Pending`
+        : data.underpaid_receipts > 0
+            ? `⚠ Underpayment Detected (₹${Number(data.underpayment_total).toLocaleString('en-IN')})`
             : "✅ No Pending Payments";
+        
 
     } catch (err) {
         console.error('Dashboard Error:', err);
@@ -533,3 +536,4 @@ manualSubmitBtn.addEventListener('click', async () => {
     status.innerText = '❌ Something went wrong: ' + err.message;
   }
 });
+
