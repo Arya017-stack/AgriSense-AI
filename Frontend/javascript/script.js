@@ -1,167 +1,189 @@
-    document.querySelectorAll('a[href^="#"]').forEach(link => {
+console.log("SCRIPT LOADED");
+document.querySelectorAll('a[href^="#"]').forEach((link) => {
+  link.addEventListener('click', function (e) {
+    const href = this.getAttribute('href');
 
-        link.addEventListener("click", function(e){
+    if (href === '#') return;
 
-            const href = this.getAttribute("href");
+    e.preventDefault();
 
-            if(href === "#") return;
+    const target = document.querySelector(href);
 
-            e.preventDefault();
+    if (target) {
+      target.scrollIntoView({
+        behavior: 'smooth',
+      });
+    }
+  });
+});
+const removeBtn = document.getElementById('removeBtn');
+const fileName = document.getElementById('fileName');
+const previewContainer = document.getElementById('previewContainer');
+const fileInput = document.getElementById('receiptInput');
+const uploadBtn = document.getElementById('uploadBtn');
+const uploadArea = document.getElementById('uploadArea');
+const stateSelect = document.getElementById('stateSelect');
+const receiptTypeRadios = document.querySelectorAll(
+  'input[name="receiptType"]',
+);
+const ocrUploadBlock = document.getElementById('ocrUploadBlock');
+const manualSubmitBtn = document.getElementById('manualSubmitBtn');
+const manualEntryBlock = document.getElementById('manualEntryBlock');
 
-            const target = document.querySelector(href);
+uploadArea.addEventListener('click', (e) => {
+  if (e.target.id === 'removeBtn') return;
 
-            if(target){
-                target.scrollIntoView({
-                    behavior:"smooth"
-                });
-            }
+  fileInput.click();
+});
 
-        });
+fileInput.addEventListener('change', () => {
+  const file = fileInput.files[0];
 
-    });
-    const removeBtn=document.getElementById("removeBtn");
-    const fileName = document.getElementById("fileName");
-    const previewContainer = document.getElementById("previewContainer");
-    const fileInput = document.getElementById("receiptInput");
-    const uploadBtn = document.getElementById("uploadBtn");
-    const uploadArea = document.getElementById("uploadArea");
+  if (!file) return;
 
-    uploadArea.addEventListener("click", (e) => {
+  fileName.innerText = file.name;
 
-        if(e.target.id === "removeBtn") return;
+  const reader = new FileReader();
 
-        fileInput.click();
-
-    });
-
-    fileInput.addEventListener("change", () => {
-
-        const file = fileInput.files[0];
-
-        if(!file) return;
-
-        fileName.innerText = file.name;
-
-        const reader = new FileReader();
-
-        reader.onload = function(e) {
-
-        previewContainer.innerHTML = `
+  reader.onload = function (e) {
+    previewContainer.innerHTML = `
             <img src="${e.target.result}" alt="Receipt Preview">
         `;
 
-        removeBtn.style.display = "block";
+    removeBtn.style.display = 'block';
 
-        uploadBtn.disabled = false;
+    uploadBtn.disabled = false;
 
-        document.getElementById("uploadPlaceholder").style.display = "none";
-    };
+    document.getElementById('uploadPlaceholder').style.display = 'none';
+  };
 
-        reader.readAsDataURL(file);
+  reader.readAsDataURL(file);
+});
 
-    });
-    console.log(uploadBtn);
-
-    uploadBtn.addEventListener("click", async (e) => {
-
-        e.preventDefault();
-
-        console.log("1 - BUTTON CLICKED");
-
-        const file = fileInput.files[0];
-
-        if (!file) {
-            alert("Please select a receipt.");
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append("receipt", file);
-
-        const status = document.getElementById("status");
-        
-        const resultBox =document.getElementById("resultBox");
-        
-        const detectedGrid = document.getElementById("detectedGrid");
-        
-        const rawText = document.getElementById("rawText");
-
-        resultBox.style.display="none";
-        status.className = "loading";
-        status.innerText = "⏳ Processing receipt, please wait...";
-        uploadBtn.disabled = true;
-
-        try {
-
-          const response = await fetch("http://127.0.0.1:5000/upload", {
-            method:"POST",
-            body: formData
-    });
-
-    console.log("3 - Response received");
-
-    if (!response.ok){
-        throw new Error ("Server returned status " + response.status);
+receiptTypeRadios.forEach((radio) => {
+  radio.addEventListener('change', () => {
+    if (radio.value === 'manual' && radio.checked) {
+      ocrUploadBlock.style.display = 'none';
+      manualEntryBlock.style.display = 'block';
+    } else if (radio.checked) {
+      ocrUploadBlock.style.display = 'block';
+      manualEntryBlock.style.display = 'none';
     }
+  });
+});
+
+console.log(uploadBtn);
+
+uploadBtn.addEventListener('click', async (e) => {
+  e.preventDefault();
+
+  console.log('1 - BUTTON CLICKED');
+
+  const file = fileInput.files[0];
+
+  if (!file) {
+    alert('Please select a receipt.');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('receipt', file);
+
+  formData.append(
+    'receipt_type',
+    document.querySelector('input[name = "receiptType"]:checked').value,
+  );
+
+  formData.append('state', stateSelect.value);
+
+  const status = document.getElementById('status');
+
+  const resultBox = document.getElementById('resultBox');
+
+  const detectedGrid = document.getElementById('detectedGrid');
+
+  const rawText = document.getElementById('rawText');
+
+  resultBox.style.display = 'none';
+  status.className = 'loading';
+  status.innerText = '⏳ Processing receipt, please wait...';
+  uploadBtn.disabled = true;
+
+  try {
+    const response = await fetch('http://127.0.0.1:5000/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    console.log('3 - Response received');
 
     const result = await response.json();
+    
+    if (!response.ok) {
+      throw new Error('Server returned status ' + response.status);
+    }
 
-    console.log("FUll Response");
+    
+
+    console.log('Full Response');
     console.log(result);
 
-    console.log("ALERTS");
+    console.log('ALERTS');
     console.log(result.alerts);
 
     await loadDashboard();
     await loadHistory();
+    
+    if (result.verification && result.verification.status ==="Possible Underpayment") {
+      document.getElementById("heroAlert").innerText = `⚠ Underpayment Detected (₹${result.verification.difference.toLocaleString()})`;
+    }
 
-    const aiContainer = document.getElementById("aiAlerts");
+    const aiContainer = document.getElementById('aiAlerts');
 
-    aiContainer.innerHTML ="";
+    aiContainer.innerHTML = '';
 
-    result.alerts.forEach(alert => {
-
-        aiContainer.innerHTML += `
+    result.alerts.forEach((alert) => {
+      aiContainer.innerHTML += `
             <div class="alert-card ${alert.type}">
                 <h3>${alert.title}</h3>
                 <p>${alert.message}</p>
             
             </div>
         `;
+  });
 
-    });
-
-    if (result.error){
-        throw new Error(result.error)
-
+    if (result.error) {
+      throw new Error(result.error);
     }
-    const text = result.text || "";
+    const text = result.text || '';
 
     const amountMatch = text.match(/(?:KES|₹|Rs\.?)\s?[\d,]+\.\d{2}/i);
     const dateMatch = text.match(/\d{4}-\d{2}-\d{2}/);
-    const paymentMatch = text.match(/payment method[\s\S]{0,20}?(cash|card|upi|cheque|online)/i);
+    const paymentMatch = text.match(
+      /payment method[\s\S]{0,20}?(cash|card|upi|cheque|online)/i,
+    );
 
     detectedGrid.innerHTML = `
         
     <div class= "detected-item">
             <span>Amount</span>
-            <strong>${amountMatch ? amountMatch[0] : "Not found"} </strong>
+            <strong>${amountMatch ? amountMatch[0] : 'Not found'} </strong>
         </div>
 
         <div class ="detected-item">
             <span>Payment Mode</span>
-            <strong>${paymentMatch ? paymentMatch[1] : "Not found"} </strong>
+            <strong>${paymentMatch ? paymentMatch[1] : 'Not found'} </strong>
         </div>
 
         <div class="detected-item">
             <span>Date</span>
-            <strong>${dateMatch ? dateMatch[0] : "Not found"}</strong>
+            <strong>${dateMatch ? dateMatch[0] : 'Not found'}</strong>
         </div>
         `;
 
-        rawText.innerText = text;
+    rawText.innerText = text;
 
-        document.getElementById("aiSummary").innerHTML = `
+    document.getElementById('aiSummary').innerHTML = `
         
         <h3>🤖 AI Summary</h3> 
         
@@ -175,151 +197,339 @@
          
         `;
 
+    document.getElementById("aiRecommendation").style.display ="none";
+    document.getElementById("verificationCard").style.display = "none";
+    document.getElementById("aiConfidence").style.display = "none";
+    document.getElementById("aiAlerts").style.display = "none";
+    document.querySelector(".raw-title").style.display = "none";
+    document.getElementById("rawText").style.display = "none";
 
-        let recommendation ="";
 
-        const payment = (result.payment_mode || "").toLowerCase();
+    let recommendation = '';
 
-        if(payment === "cash"){   
-            recommendation = "💡 Cash payment detected. Consider using digital payments for better record tracking.";
+    const payment = (result.payment_mode || '').toLowerCase();
 
-        }
+    if (payment === 'cash') {
+      recommendation =
+        '💡 Cash payment detected. Consider using digital payments for better record tracking.';
+    } else if (payment === 'upi') {
+      recommendation =
+        '✅ Digital payment detected. Transaction tracking will be easier.';
+    } else {
+      recommendation = '📄 Receipt stored successfully for future analytics.';
+    }
 
-        else if(payment === "upi"){
-            recommendation =  "✅ Digital payment detected. Transaction tracking will be easier.";
-        }
-
-        else{
-            recommendation =  "📄 Receipt stored successfully for future analytics.";
-        }
-
-        document.getElementById("aiRecommendation").innerHTML =`
+    document.getElementById('aiRecommendation').innerHTML = `
         <h3>🧠 AI Recommendation</h3>
         
         <p>${recommendation}</p>
         
         `;
 
-        document.getElementById("aiConfidence").innerHTML = `
+    document.getElementById('aiConfidence').innerHTML = `
             <h3>🎯 AI Confidence</h3>
             <h2>${result.confidence.score}%</h2>
             <p><b>${result.confidence.level}</b></p>
             <p style="font-size:13px; color:#9ae6b4;">Based on OCR clarity: ${result.confidence.ocr_confidence}%</p>
         `;
-        resultBox.style.display ="block";
 
-        status.className="";
-        status.innerText = "✅ Receipt processed successfully.";
+    if (result.verification) {
+      const verification = result.verification;
 
-    } catch(err){
-        console.error(err);
-        status.className ="error";
-        status.innerText="❌ Something went wrong: " + err.message;
+      const badgeColor =
+        verification.status === 'Possible Underpayment' ? '#ef4444' : '#22c55e';
 
-    }   finally{
-        uploadBtn.disabled =false;
+      document.getElementById('verificationCard').innerHTML = `
+                <h3>🏛 Government Payment Verification</h3>
+
+                <p><b>📍 State:</b> ${verification.state}</p>
+
+                <p><b>📜 ${verification.rate_type} Rate:</b>
+                ₹${verification.government_rate} / Quintal</p>
+
+                <p><b>💰 Expected Amount:</b>
+                ₹${verification.expected_amount.toLocaleString()}</p>
+
+                <p><b>💵 Received Amount:</b>
+                ₹${verification.received_amount.toLocaleString()}</p>
+
+                <p><b>📉 Difference:</b>
+                ₹${Math.abs(verification.difference).toLocaleString()}</p>
+
+                <p style="
+                    color:${badgeColor};
+                    font-weight:bold;
+                    font-size:18px;
+                ">
+                    ${verification.status}
+                </p>
+
+                <hr>
+
+                <small>
+                    ✔ Last Verified :
+                    ${verification.last_verified}
+                </small>
+
+            `;
     }
-    });    
-        removeBtn.addEventListener("click", (e) => {
 
-        e.stopPropagation();
+    document.getElementById("aiRecommendation").style.display ="block";
+    document.getElementById("verificationCard").style.display = "block";
+    document.getElementById("aiConfidence").style.display = "block";
+    document.getElementById("aiAlerts").style.display ="block";
+    document.querySelector(".raw-title").style.display ="block";
+    document.getElementById("rawText").style.display = "block";
 
-        fileInput.value = "";
-        previewContainer.innerHTML = "";
-        fileName.innerText = "";
+    
+    resultBox.style.display = 'block';
 
-        removeBtn.style.display = "none";
+    status.className = '';
+    status.innerText = '✅ Receipt processed successfully.';
+  } catch (err) {
+    console.error(err);
+    status.className = 'error';
+    status.innerText = '❌ Something went wrong: ' + err.message;
+  } finally {
+    uploadBtn.disabled = false;
+  }
+});
+removeBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
 
-        uploadBtn.disabled = true;
+  fileInput.value = '';
+  previewContainer.innerHTML = '';
+  fileName.innerText = '';
 
-        document.getElementById("uploadPlaceholder").style.display = "block";
+  removeBtn.style.display = 'none';
 
-    });
-        async function loadDashboard(){
-            try{
-                const response= await fetch ("http://127.0.0.1:5000/dashboard");
-                const data = await response.json();
+  uploadBtn.disabled = true;
 
-                document.getElementById("totalReceipts").innerText = data.total_receipts + " Receipts";
+  document.getElementById('uploadPlaceholder').style.display = 'block';
+});
+async function loadDashboard() {
+  try {
+    const response = await fetch('http://127.0.0.1:5000/dashboard');
+    const data = await response.json();
 
+    document.getElementById('totalReceipts').innerText =
+      data.total_receipts + ' Receipts';
 
-                document.getElementById("totalRevenue").innerText = "KES " +Number(data.total_revenue).toLocaleString();
+    document.getElementById('totalRevenue').innerText =
+      '₹' + Number(data.total_revenue).toLocaleString();
 
-                document.getElementById("latestPayment").innerText = data.latest_payment;
+    document.getElementById('pendingReceipts').innerText =
+      data.pending_receipts + ' Pending';
 
-                document.getElementById("aiAlert").innerText = data.latest_payment === "N/A"
-                    ?"No Alerts" 
-                    : "Payment: " + data.latest_payment;
+    document.getElementById('pendingAmount').innerText =
+      '₹' + Number(data.pending_amount).toLocaleString();
+    
+    document.getElementById('underpaidCount').innerText = data.underpaid_receipts +' Receipts';
 
+    document.getElementById('underpaidAmount').innerText = '₹' + Number(data.underpayment_total).toLocaleString('en-IN');
 
-            }   
+    document.getElementById('aiAlert').innerText = 
 
-            catch(err){
-                console.error("Dashboard Error:", err);
-            }
-        }
+      data.pending_receipts > 0
+        ? `${data.pending_receipts} payment(s) pending`
+        : 'No Alerts';
 
-        loadDashboard();
+    document.getElementById('aiAlert').innerText =
+    data.pending_receipts > 0
+        ? `${data.pending_receipts} payment(s) pending`
+        : 'No Alerts';
 
-        async function loadHistory(){
+// ===== HERO DASHBOARD =====
+    document.getElementById("heroRevenue").innerText =
+        "₹" + Number(data.total_revenue).toLocaleString("en-IN");
 
-            try{
-                const response = await fetch("http://127.0.0.1:5000/receipts");
-                const receipts = await response.json();
+    document.getElementById("heroSugarcane").innerText =
+        `${data.total_receipts} Receipts`;
 
-                const historyBody = document.getElementById("historyBody");
+    document.getElementById("heroPending").innerText =
+        "₹" + Number(data.pending_amount).toLocaleString("en-IN");
 
-                historyBody.innerHTML = "";
+    document.getElementById("heroAlert").innerText =
+        data.pending_receipts > 0
+            ? `⚠ ${data.pending_receipts} Payments Pending`
+            : "✅ No Pending Payments";
 
-                receipts.forEach(receipt => {
-                    historyBody.innerHTML += `
+    } catch (err) {
+        console.error('Dashboard Error:', err);
+  }
+}
+
+loadDashboard();
+
+async function loadHistory() {
+  try {
+    const response = await fetch('http://127.0.0.1:5000/receipts');
+    const receipts = await response.json();
+
+    const historyBody = document.getElementById('historyBody');
+
+    historyBody.innerHTML = '';
+
+    receipts.forEach((receipt) => {
+      historyBody.innerHTML += `
                         <tr>
                             <td>${receipt.receipt_name}</td>
+                            <td>${receipt.receipt_type || '-'}</td>
+                            <td>${receipt.payment_status || '-'}</td>
+                            <td>${receipt.days_pending || 0}</td>
+                            <td>${receipt.expected_payment_date || '-'}</td>
                             <td>${receipt.amount}</td>
-                            <td>${receipt.payment_mode}</td>
-                            <td>${receipt.date}</td>
                             <td>${receipt.crop}</td>
                         </tr>
                     `;
-                });
-            }
-            catch(err){
-                console.error("History Error:", err);
-            }
-        }
-        loadHistory();
+});
+  } catch (err) {
+    console.error('History Error:', err);
+  }
+}
+loadHistory();
 
+async function loadWeather() {
 
-        async function loadWeather(){
+  console.log("loadWeather started");
 
-    try{
-        const response = await fetch("http://127.0.0.1:5000/weather");
-        const data = await response.json();
+  const fetchWeather = (lat, lon) => {
+    
+    console.log("Fetching:", lat, lon);
 
+    fetch(`http://127.0.0.1:5000/weather?lat=${lat}&lon=${lon}`)
+      .then(response => response.json())
+      .then(data => {
         if (data.error) {
-            document.getElementById("weatherTemp").innerHTML = "⚠️ Weather unavailable";
-            document.getElementById("weatherHumidity").innerHTML = "";
-            document.getElementById("weatherRain").innerHTML = "";
-            document.getElementById("cropSuggestion").innerHTML = "";
-            return;
+          document.getElementById('weatherTempMain').innerText = '⚠️ Unavailable';
+          document.getElementById('weatherTempRange').innerText = '';
+          document.getElementById('cropSuggestion').innerText = 'N/A';
+          return;
         }
 
-        document.getElementById("weatherTemp").innerHTML =
-            `🌡 ${data.temperature}°C (14d: ${data.avg_min_temp_14d}–${data.avg_max_temp_14d}°C)`;
+        const tempEl = document.getElementById('weatherTempMain');
+        tempEl.innerText = `${data.temperature}°C`;
+        tempEl.className = 'weather-main-value ' + getTempClass(data.temperature);
 
-        document.getElementById("weatherHumidity").innerHTML =
-            `💧 Humidity: ${data.humidity}%`;
+        document.getElementById('weatherTempRange').innerText =
+          `14-day range: ${data.avg_min_temp_14d}° – ${data.avg_max_temp_14d}°C`;
 
-        document.getElementById("weatherRain").innerHTML =
-            `🌧 Rain — Today: ${data.rain_today}% | 7d avg: ${data.rain_7day_avg}% | 14d avg: ${data.rain_14day_avg}%`;
+        const weatherIcon = getRainEmoji(data.rain_today);
+        document.querySelector('#weatherCard h3').innerText =
+          `${weatherIcon} AI Weather Intelligence`;
 
-        document.getElementById("cropSuggestion").innerHTML =
-            `🌾 Recommended Crop (14-day trend): <b>${data.recommended_crop}</b>`;
+        document.getElementById('rainBarToday').style.width = `${data.rain_today}%`;
+        document.getElementById('rainValueToday').innerText = `${data.rain_today}%`;
 
-    }
-    catch(err){
-        console.error("Weather Error:", err);
-    }
+        document.getElementById('rainBar7d').style.width = `${data.rain_7day_avg}%`;
+        document.getElementById('rainValue7d').innerText = `${data.rain_7day_avg}%`;
+
+        document.getElementById('rainBar14d').style.width = `${data.rain_14day_avg}%`;
+        document.getElementById('rainValue14d').innerText = `${data.rain_14day_avg}%`;
+
+        document.getElementById('humidityCircle').innerText = `${data.humidity}%`;
+        document.getElementById('humidityStatus').innerText = getHumidityStatus(data.humidity);
+
+        document.getElementById('cropSuggestion').innerText = data.recommended_crop;
+      })
+      .catch(err => console.error('Weather Error:', err));
+  };
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude),
+      () => fetchWeather(29.9457, 78.1642)
+    );
+  } else {
+    fetchWeather(29.9457, 78.1642);
+  }
+}
+console.log("About to call loadWeather");
+loadWeather();
+
+function getTempClass(temp) {
+  if (temp < 20) return 'temp-cold';
+  if (temp < 30) return 'temp-mild';
+  if (temp < 40) return 'temp-hot';
+  return 'temp-extreme';
 }
 
-loadWeather();
+function getRainEmoji(rainPercent) {
+  if (rainPercent < 20) return '☀️';
+  if (rainPercent < 50) return '🌦';
+  if (rainPercent < 75) return '🌧';
+  return '⛈';
+}
+
+function getHumidityStatus(humidity) {
+  if (humidity < 30) return 'Low';
+  if (humidity <= 70) return 'Optimal';
+  return 'High';
+}
+
+
+
+manualSubmitBtn.addEventListener('click', async () => {
+  const millName = document.getElementById('millName').value.trim();
+  const deliveryDate = document.getElementById('deliveryDate').value;
+  const quantityValue = document.getElementById('quantityValue').value;
+  const quantityUnit = document.getElementById('quantityUnit').value;
+  const manualAmount = document.getElementById('manualAmount').value;
+
+  if (!millName || !deliveryDate || !quantityValue) {
+    alert('Please fill Mill Name, Delivery Date, and Quantity.');
+    return;
+  }
+  const status = document.getElementById('status');
+  status.className = 'loading';
+  status.innerText = '⏳ Saving manual entry...';
+
+  try {
+    const response = await fetch('http://127.0.0.1:5000/manual-entry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        mill_name: millName,
+        delivery_date: deliveryDate,
+        quantity: quantityValue,
+        unit: quantityUnit,
+        amount: manualAmount || null,
+        state: stateSelect.value,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (result.error) {
+      throw new Error(result.error);
+    }
+
+    await loadDashboard();
+    await loadHistory();
+
+    status.className = '';
+    status.innerText = '✅ Manual entry saved successfully.';
+
+    document.getElementById('resultBox').style.display = 'block';
+
+    document.getElementById('aiSummary').innerHTML = `
+         <h3>📝 Manual Entry Summary</h3>
+            <p><b>🏭 Mill:</b> ${result.mill_name}</p>
+            <p><b>📦 Quantity:</b> ${result.quantity_quintals} Quintals</p>
+            <p><b>💰 Expected Amount:</b> ₹${result.expected_amount ?? 'Not Available'}</p>
+            <p><b>💸 Pending Amount:</b> ₹${result.pending_amount ?? '0'}</p>
+            <p><b>📅 Delivery Date:</b> ${result.delivery_date}</p>
+            <p><b>📌 Status:</b> ${result.payment_status}</p>
+        `;
+        document.getElementById("aiRecommendation").style.display = "none";
+        document.getElementById("verificationCard").style.display = "none";
+        document.getElementById("aiConfidence").style.display = "none";
+        document.getElementById("aiAlerts").style.display = "none";
+        document.querySelector(".raw-title").style.display = "none";
+        document.getElementById("rawText").style.display = "none";
+  } catch (err) {
+    console.error(err);
+    status.className = 'error';
+    status.innerText = '❌ Something went wrong: ' + err.message;
+  }
+});

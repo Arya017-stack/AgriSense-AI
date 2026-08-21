@@ -1,14 +1,14 @@
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
                 <meta charset="UTF-8">
                 <meta name ="viewport" content="width=device-width, initial-scale=1.0">
                 <title> AgriSense AI </title>
                 <link rel="stylesheet" href="../css/style.css">
-            </head>
-            <body>
+</head>
+<body>
 
-                <header>
+<header>
                     <nav class = "navbar">
                         <div class = "logo">
                             <span class = "logo-icon">🌾</span>
@@ -27,7 +27,7 @@
                         </div>
                     </nav>
 
-                </header>
+</header>
                 <section id ="home" class="hero">
                     <div class="hero-left">
                         <span class="hero-badge">🌾 AI Powered Farm Intelligence</span>
@@ -67,56 +67,91 @@
                         </div>
                     </div>
                     <div class = "hero-right">
-                        <div class = "dashboard-card">
-                            <div class="card-header">
-                                <div class ="profile">
-                                    <div class ="profile-circle"></div>
-                                    <div>
-                                        <h4>Farm Dashboard</h4>
-                                        <span>Live AI Analysis</span>
-                                    </div>
+                            <div class = "dashboard-card">
+                                <div class="card-header">
+                                    <div class ="profile">
+                                        <div class ="profile-circle"></div>
+                                        <div>
+                                            <h4>Farm Dashboard</h4>
+                                            <span>Live AI Analysis</span>
+                                        </div>
 
+                                    </div>
+                                    <span class ="status">
+                                        ● Online
+                                    </span>
                                 </div>
-                                <span class ="status">
-                                    ● Online
+                            <div class ="income-card">
+                                <p class="income-label" >Total Revenue</p>
+                                <h2 id="heroRevenue">₹2,48,650</h2>
+                                <span class = "profit"> 
+                                    ↑ +12% This Season
                                 </span>
                             </div>
-                        <div class ="income-card">
-                            <p>Total Revenue</p>
-                            <h2>₹2,48,650</h2>
-                            <span class = "profit"> 
-                                ↑ +12% This Season
-                            </span>
-                        </div>
-                        <div class = "dashboard-grid">
-                            <div class="mini-card">
-                                <h3>🌾 Sugarcane</h3>
-                                <p>52 Tons Delivered</p>
-                            </div>
-                            <div class="mini-card">
-                                <h3>Pending</h3>
-                                <p>₹18,500</p>
-                            </div>
-                           <div class="mini-card" id="weatherCard">
+                            <div class = "dashboard-grid">
+                                <div class="mini-card">
+                                    <h3>🌾 Sugarcane</h3>
+                                    <p id ="heroSugarcane">52 Tons Delivered</p>
+                                </div>
+                                <div class="mini-card">
+                                    <h3>Pending</h3>
+                                    <p id="heroPending" >₹18,500</p>
+                                </div>
+                                <div class="mini-card weather-card-premium" id="weatherCard">
 
-                                <h3>🌦 AI Weather</h3>
+                                    <h3>🌦 AI Weather Intelligence</h3>
 
-                                <p id="weatherTemp">🌡 Loading...</p>
+                                    <div class="weather-section">
+                                    <div class="weather-section-label">🌡 Temperature</div>
+                                    <div class="weather-main-value" id="weatherTempMain">Loading...</div>
+                                    <div class="weather-sub-value" id="weatherTempRange">14-day avg loading...</div>
+                                </div>
 
-                                <p id="weatherHumidity">💧 Loading...</p>
+                                <div class="weather-section">
+                                    <div class="weather-section-label">🌧 Rainfall</div>
+                                    <div class="rain-row">
+                                        <span class="rain-row-label">Today</span>
+                                        <div class="rain-bar-track">
+                                            <div class="rain-bar-fill" id="rainBarToday"></div>
+                                        </div>
+                                        <span class="rain-row-value" id="rainValueToday">-</span>
+                                    </div>
+                                    <div class="rain-row">
+                                        <span class="rain-row-label">7 Days</span>
+                                        <div class="rain-bar-track">
+                                            <div class="rain-bar-fill" id="rainBar7d"></div>
+                                        </div>
+                                        <span class="rain-row-value" id="rainValue7d">-</span>
+                                    </div>
+                                    <div class="rain-row">
+                                        <span class="rain-row-label">14 Days</span>
+                                        <div class="rain-bar-track">
+                                            <div class="rain-bar-fill" id="rainBar14d"></div>
+                                        </div>
+                                        <span class="rain-row-value" id="rainValue14d">-</span>
+                                    </div>
+                                </div>
 
-                                <p id="weatherRain">🌧 Loading...</p>
+                                <div class="weather-section">
+                                    <div class="weather-section-label">💧 Humidity</div>
+                                    <div class="humidity-row">
+                                        <div class="humidity-circle" id="humidityCircle">-</div>
+                                        <span class="humidity-status" id="humidityStatus">Loading...</span>
+                                    </div>
+                                </div>
 
-                                <hr>
+                                <hr class="weather-divider">
 
-                                <p id="cropSuggestion">
-                                    🌾 AI Recommendation Loading...
-                                </p>
+                                <div class="crop-recommend-box">
+                                    <div class="weather-section-label">🌾 AI Crop Recommendation</div>
+                                    <div class="crop-recommend-name" id="cropSuggestion">Loading...</div>
+                                    <div class="crop-recommend-note">✅ Based on 14-day weather trend</div>
+                                </div>
 
                             </div>
                             <div class="mini-card">
                                 <h3>🤖 AI Alert</h3>
-                                <p>Payment Missing</p>
+                                <p id="heroAlert">Payment Missing</p>
                             </div>
                         </div>
                         </div>
@@ -155,7 +190,7 @@
                             <h3>Revenue Tracking</h3>
                             <p>
                                 Keep track of received payments,
-                                pending dues and total earnings..</p>
+                                pending dues and total earnings.</p>
                         </div>
 
                         <div class="feature-card">
@@ -236,7 +271,7 @@
                     <div class="section-badge">📊Smart Dashboard</div>
                         <h2>your Farm Data<br> In One Dashboard</h2>
                         <p>
-                            Monitor Harvest, payments crop performance and AI insights from one simple sadhboard designed for every farmer.
+                            Monitor Harvest, payments crop performance and AI insights from one simple dashboard designed for every farmer.
                         </p>
                     </div>
 
@@ -251,7 +286,13 @@
                             
                             <div class = "preview-card">
                                 <h3>💰 Pending Payments</h3>
-                                <p id="latestPayment">N/A</p>
+                                <p id ="pendingReceipts">0 Pending</p>
+                                <p id = "pendingAmount">₹0</p>
+                            </div>
+                            <div class = "preview-card">
+                                <h3>⚠️ Total Underpayment</h3>
+                                <p id="underpaidCount">0 Receipts</p>
+                                <p id ="underpaidAmount">₹0</p>
                             </div>
                         
                             <div class = "preview-card">
@@ -306,7 +347,7 @@
                         </span>
                         <h2> Trusted By Farmers Across India</h2>
                         <p>
-                            Farmers use AgriSense AI everyday to manage harvest records,track payents and make smarter farming decisions.
+                            Farmers use AgriSense AI everyday to manage harvest records,track payments and make smarter farming decisions.
                         </p>
                     </div>
                     <div class="testimonial-grid">
@@ -319,7 +360,7 @@
                                 </div>
                             </div>
                             <p>
-                                AgrSense helped me track every paryment from the sugar mill.
+                                AgriSense helped me track every paryment from the sugar mill.
                                 I no longer worry about missing records.
                             </p>
                             <div class="rating">
@@ -384,33 +425,87 @@
 
                 <div class="upload-card">
 
-                    <div class="upload-area" id="uploadArea">
+                    <div class="state-select-wrapper">
+                        <label for="stateSelect">📍 Select Your State</label>
+                        <select id="stateSelect">
+                            <option value="Uttar Pradesh">Uttar Pradesh</option>
+                            <option value="Uttarakhand">Uttarakhand</option>
+                            <option value="Maharashtra">Maharashtra</option>
+                            <option value="Punjab">Punjab</option>
+                            <option value="Karnataka">Karnataka</option>
+                        </select>
+                    </div>
 
-                        <div id="uploadPlaceholder">
-                            <div class="upload-icon">📄</div>
-                            <h3>Select Receipt</h3>
-                            <p>PNG, JPG or JPEG</p>
+                    <div class="receipt-type-wrapper">
+                        <label>📄 Receipt Type</label>
+                        <div class="receipt-type-options">
+                            <label class="radio-option">
+                                <input type="radio" name="receiptType" value="delivery">
+                                Delivery Slip (payment pending)
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="receiptType" value="payment" checked>
+                                Payment Receipt (already paid)
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="receiptType" value="manual">
+                                No Receipt (Manual Entry)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="ocrUploadBlock">
+
+                        <div class="upload-area" id="uploadArea">
+
+                            <div id="uploadPlaceholder">
+                                <div class="upload-icon">📄</div>
+                                <h3>Select Receipt</h3>
+                                <p>PNG, JPG or JPEG</p>
+                            </div>
+
+                            <div id="previewContainer"></div>
+
                         </div>
 
-                        <div id="previewContainer"></div>
+                        <button type="button" id="removeBtn">
+                            ✕
+                        </button>
+                        <input
+                            type="file"
+                            id="receiptInput"
+                            accept="image/*"
+                            hidden
+                        >
+
+                        <p id="fileName"></p>
+
+                        <button type="button" id="uploadBtn" disabled>
+                            Upload Receipt
+                        </button>
 
                     </div>
 
-                    <button type="button" id="removeBtn">
-                        ✕
-                    </button>
-                    <input
-                        type="file"
-                        id="receiptInput"
-                        accept="image/*"
-                        hidden
-                    >
+                    <div id="manualEntryBlock" style="display:none;">
+                        <h3 style="margin-bottom:14px;">📝 Manual Entry (No Receipt)</h3>
 
-                    <p id="fileName"></p>
+                        <input type="text" id="millName" placeholder="Mill Name" class="manual-input">
 
-                    <button type="button" id="uploadBtn" disabled>
-                        Upload Receipt
-                    </button>
+                        <input type="date" id="deliveryDate" class="manual-input">
+
+                        <div class="manual-qty-row">
+                            <input type="number" id="quantityValue" placeholder="Quantity" class="manual-input">
+                            <select id="quantityUnit" class="manual-input">
+                                <option value="quintal">Quintal</option>
+                                <option value="ton">Ton</option>
+                                <option value="kg">Kg</option>
+                            </select>
+                        </div>
+
+                        <input type="number" id="manualAmount" placeholder="Amount Received (optional)" class="manual-input">
+
+                        <button type="button" id="manualSubmitBtn">Submit Manual Entry</button>
+                    </div>
 
                     <div id="resultBox" class="result-box" style="display:none;">
                         <h3 class="result-title">📄 Extracted Details</h3>
@@ -419,8 +514,9 @@
 
                         <div id="aiSummary" class="ai-summary"></div>
 
-                    
-                        <div id="aiRecommendation" class ="ai-summary"></div>
+                        <div id="aiRecommendation" class="ai-summary"></div>
+
+                        <div id="verificationCard" class="ai-summary"></div>
 
                         <div id="aiConfidence" class="ai-summary"></div>
 
@@ -428,7 +524,7 @@
 
                         <pre id="rawText" class="raw-text"></pre>
 
-                        <div id ="aiAlerts" class ="ai-alerts"></div>
+                        <div id="aiAlerts" class="ai-alerts"></div>
                     </div>
 
                     <p id="status"></p>
@@ -446,9 +542,11 @@
                         <thead>
                             <tr>
                                 <th>Receipt</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Days Pending</th>
+                                <th>Expected Payment</th>
                                 <th>Amount</th>
-                                <th>Payment</th>
-                                <th>Date</th>
                                 <th>Crop</th>
                             </tr>
                         </thead>
@@ -469,7 +567,7 @@
                             <h2>AgriSense AI </h2>
                         </div>
                         <p>
-                            Empowering farmers with AI-powered harverst tracking, payment monitoring and smart farm insights.
+                            Empowering farmers with AI-powered harvest tracking, payment monitoring and smart farm insights.
                         </p>
                     </div>
                     <div class="footer-links">
@@ -484,9 +582,9 @@
                     <div class="footer-links">
                         <h3>Resources</h3>
                         <ul>
-                            <li><a href ="#">Pirvacy Policy</a></li>
+                            <li><a href ="#">Privacy Policy</a></li>
                             <li><a href ="#">Terms & Conditions</a></li>
-                            <li><a href ="#">Suport</a></li>
+                            <li><a href ="#">Support</a></li>
                             <li><a href ="#">FAQs</a></li>
                         </ul>
                     </div>
@@ -506,3 +604,7 @@
         <script src="../javascript/script.js"></script>
      </body>
     </html>
+
+
+
+    
