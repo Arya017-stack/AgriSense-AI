@@ -1,3 +1,4 @@
+const API_BASE = (location.hostname === "127.0.0.1" || location.hostname === "localhost") ? "http://127.0.0.1:5000" : "";
 console.log("SCRIPT LOADED");
 document.querySelectorAll('a[href^="#"]').forEach((link) => {
   link.addEventListener('click', function (e) {
@@ -110,7 +111,7 @@ uploadBtn.addEventListener('click', async (e) => {
   uploadBtn.disabled = true;
 
   try {
-    const response = await fetch('http://127.0.0.1:5000/upload', {
+    const response = await fetch(`${API_BASE}/upload`, {
       method: 'POST',
       body: formData,
     });
@@ -309,7 +310,7 @@ removeBtn.addEventListener('click', (e) => {
 });
 async function loadDashboard() {
   try {
-    const response = await fetch('http://127.0.0.1:5000/dashboard');
+    const response = await fetch(`${API_BASE}/dashboard`);
     const data = await response.json();
 
     document.getElementById('totalReceipts').innerText =
@@ -366,7 +367,7 @@ loadDashboard();
 
 async function loadHistory() {
   try {
-    const response = await fetch('http://127.0.0.1:5000/receipts');
+    const response = await fetch(`${API_BASE}/receipts`);
     const receipts = await response.json();
 
     const historyBody = document.getElementById('historyBody');
@@ -488,7 +489,7 @@ manualSubmitBtn.addEventListener('click', async () => {
   status.innerText = '⏳ Saving manual entry...';
 
   try {
-    const response = await fetch('http://127.0.0.1:5000/manual-entry', {
+    const response = await fetch(`${API_BASE}/manual-entry`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -535,5 +536,6 @@ manualSubmitBtn.addEventListener('click', async () => {
     status.className = 'error';
     status.innerText = '❌ Something went wrong: ' + err.message;
   }
-});
+}); 
+
 
