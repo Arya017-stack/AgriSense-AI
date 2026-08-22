@@ -230,49 +230,58 @@ def seed_rates():
     conn = get_rate_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT COUNT(*) FROM crop_rates")
+    all_rates = [
+        ("Sugarcane", "Uttarakhand", "FRP", 355.0, "2025-26", "https://cacp.dacnet.nic.in", "2026-07-20"),
+        ("Sugarcane", "Uttar Pradesh", "SAP", 370.0, "2025-26", "https://caneup.in", "2026-07-20"),
 
-    count = cursor.fetchone()[0]
+        ("Rice", "Uttar Pradesh", "MSP", 2369.0, "2025-26", "https://cacp.dacnet.nic.in", "2026-08-21"),
+        ("Rice", "Uttarakhand", "MSP", 2369.0, "2025-26", "https://cacp.dacnet.nic.in", "2026-08-21"),
+        ("Rice", "Punjab", "MSP", 2369.0, "2025-26", "https://cacp.dacnet.nic.in", "2026-08-21"),
+        ("Rice", "Maharashtra", "MSP", 2369.0, "2025-26", "https://cacp.dacnet.nic.in", "2026-08-21"),
+        ("Rice", "Karnataka", "MSP", 2369.0, "2025-26", "https://cacp.dacnet.nic.in", "2026-08-21"),
 
-    if count == 0:
+        ("Wheat", "Uttar Pradesh", "MSP", 2425.0, "2025-26", "https://cacp.dacnet.nic.in", "2026-08-21"),
+        ("Wheat", "Uttarakhand", "MSP", 2425.0, "2025-26", "https://cacp.dacnet.nic.in", "2026-08-21"),
+        ("Wheat", "Punjab", "MSP", 2425.0, "2025-26", "https://cacp.dacnet.nic.in", "2026-08-21"),
+        ("Wheat", "Maharashtra", "MSP", 2425.0, "2025-26", "https://cacp.dacnet.nic.in", "2026-08-21"),
+        ("Wheat", "Karnataka", "MSP", 2425.0, "2025-26", "https://cacp.dacnet.nic.in", "2026-08-21"),
 
-        cursor.executemany("""
-            INSERT INTO crop_rates
-                    (
-                        crop,
-                        state,
-                        rate_type,
-                        rate_per_quintal,
-                        marketing_year,
-                        source_url,
-                        last_verified 
-            ) 
-        
-            VALUES(?, ?, ?, ?, ?, ?, ?)
-        """, [
-            (
-                "Sugarcane",
-                "Uttarakhand",
-                "FRP",
-                355.0,
-                "2025-26",
-                "https://cacp.dacnet.nic.in",
-                "2026-07-20"
-            ),
+        ("Maize", "Uttar Pradesh", "MSP", 2400.0, "2025-26", "https://cacp.dacnet.nic.in", "2026-08-21"),
+        ("Maize", "Uttarakhand", "MSP", 2400.0, "2025-26", "https://cacp.dacnet.nic.in", "2026-08-21"),
+        ("Maize", "Punjab", "MSP", 2400.0, "2025-26", "https://cacp.dacnet.nic.in", "2026-08-21"),
+        ("Maize", "Maharashtra", "MSP", 2400.0, "2025-26", "https://cacp.dacnet.nic.in", "2026-08-21"),
+        ("Maize", "Karnataka", "MSP", 2400.0, "2025-26", "https://cacp.dacnet.nic.in", "2026-08-21"),
 
-            (
-                "Sugarcane",
-                "Uttar Pradesh",
-                "SAP",
-                370.0,
-                "2025-26",
-                "https://caneup.in",
-                "2026-07-20"
+        ("Bajra", "Uttar Pradesh", "MSP", 2775.0, "2025-26", "https://cacp.dacnet.nic.in", "2026-08-21"),
+        ("Bajra", "Uttarakhand", "MSP", 2775.0, "2025-26", "https://cacp.dacnet.nic.in", "2026-08-21"),
+        ("Bajra", "Punjab", "MSP", 2775.0, "2025-26", "https://cacp.dacnet.nic.in", "2026-08-21"),
+        ("Bajra", "Maharashtra", "MSP", 2775.0, "2025-26", "https://cacp.dacnet.nic.in", "2026-08-21"),
+        ("Bajra", "Karnataka", "MSP", 2775.0, "2025-26", "https://cacp.dacnet.nic.in", "2026-08-21"),
 
-            )
-        ])
+        ("Cotton", "Uttar Pradesh", "MSP", 7710.0, "2025-26", "https://cotcorp.org.in", "2026-08-21"),
+        ("Cotton", "Uttarakhand", "MSP", 7710.0, "2025-26", "https://cotcorp.org.in", "2026-08-21"),
+        ("Cotton", "Punjab", "MSP", 7710.0, "2025-26", "https://cotcorp.org.in", "2026-08-21"),
+        ("Cotton", "Maharashtra", "MSP", 7710.0, "2025-26", "https://cotcorp.org.in", "2026-08-21"),
+        ("Cotton", "Karnataka", "MSP", 7710.0, "2025-26", "https://cotcorp.org.in", "2026-08-21"),
+    ]
 
-        conn.commit()
+    for crop, state, rate_type, rate, year, source, verified in all_rates:
+
+        cursor.execute("""
+            SELECT COUNT(*) FROM crop_rates
+            WHERE crop = ? AND state = ? AND marketing_year = ?
+        """, (crop, state, year))
+
+        exists = cursor.fetchone()[0]
+
+        if exists == 0:
+            cursor.execute("""
+                INSERT INTO crop_rates
+                    (crop, state, rate_type, rate_per_quintal, marketing_year, source_url, last_verified)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (crop, state, rate_type, rate, year, source, verified))
+
+    conn.commit()
     conn.close()
 
 
