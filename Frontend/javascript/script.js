@@ -1,4 +1,21 @@
 const API_BASE = (location.hostname === "127.0.0.1" || location.hostname === "localhost") ? "http://127.0.0.1:5000" : "";
+
+const DISTRICT_COORDS = {
+  "Almora" :{lat:29.5971, lon:79.6591},
+  "Bageshwar":{ lat: 29.8406, lon: 79.7714 },
+  "Chamoli": { lat: 30.3165, lon: 79.3200 },
+  "Champawat": { lat: 29.3350, lon: 80.0950 },
+  "Dehradun": { lat: 30.3165, lon: 78.0322 },
+  "Haridwar": { lat: 29.9457, lon: 78.1642 },
+  "Nainital" :{ lat: 29.3919, lon: 79.4542 },
+  "Pauri Garhwal":{ lat: 30.1462, lon: 78.7642 },
+  "Pithoragarh":{ lat: 29.5829, lon: 80.2181 },
+  "Rudraprayag":{ lat: 30.2844, lon: 78.9812 },
+  "Tehri Garhwal":{ lat: 30.3900, lon: 78.4800 },
+  "Udham Singh Nagar":{ lat: 28.9800, lon: 79.4000 },
+  "Uttarkashi": { lat: 30.7268, lon: 78.4354 },
+};
+
 console.log("SCRIPT LOADED");
 document.querySelectorAll('a[href^="#"]').forEach((link) => {
   link.addEventListener('click', function (e) {
@@ -401,7 +418,7 @@ async function loadWeather() {
     
     console.log("Fetching:", lat, lon);
 
-    fetch(`http://127.0.0.1:5000/weather?lat=${lat}&lon=${lon}`)
+    fetch(`${API_BASE}/weather?lat=${lat}&lon=${lon}`)
       .then(response => response.json())
       .then(data => {
         if (data.error) {
@@ -439,15 +456,29 @@ async function loadWeather() {
       .catch(err => console.error('Weather Error:', err));
   };
 
-  if (navigator.geolocation) {
+  const districtSelect = document.getElementById('districtSelect');
+  const selectedDistrict = districtSelect ? districtSelect.value : 'auto';
+
+  if (selectedDistrict !== 'auto' && DISTRICT_COORDS[selectedDistrict]) {
+    const coords = DISTRICT_COORDS[selectedDistrict];
+    fetchWeather(coords.lat, coords.lon);
+  } else if (navigator.geolocation){
     navigator.geolocation.getCurrentPosition(
       (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude),
-      () => fetchWeather(29.9457, 78.1642)
+      () => fetchWeather(29.9457, 78.1642) // Fallback to Haridwar if geolocation fails
     );
-  } else {
+
+  } else{
     fetchWeather(29.9457, 78.1642);
+    }
   }
-}
+  document.addEventListener('DOMContentLoaded', () => {
+    const districtSelect = document.getElementById('districtSelect');
+    if (districtSelect) {
+      districtSelect.addEventListener('change', loadWeather);
+    }
+  });
+
 console.log("About to call loadWeather");
 loadWeather();
 
