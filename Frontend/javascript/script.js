@@ -502,6 +502,25 @@ function getHumidityStatus(humidity) {
   return 'High';
 }
 
+async function loadForecastAccuracy() {
+  try {
+    const response = await fetch(`${API_BASE}/forecast-accuracy?days=7`);
+    const data = await response.json();
+
+    const el = document.getElementById('forecastAccuracy');
+    if (!el) return;
+
+    if (data.message) {
+      el.innerText = data.message;
+      return;
+
+    }
+
+    el.innertText = `±${data.mae_temp}°C avg error (${data.sample_size} days)`;
+  } catch (err) {
+    console.error('Forecast Accuracy Error:', err);
+  }
+}
 
 
 manualSubmitBtn.addEventListener('click', async () => {
