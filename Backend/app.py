@@ -4,6 +4,7 @@ import os
 import easyocr
 from werkzeug.utils import secure_filename 
 from database.db import (
+            create_forecast_log_table,
             create_receipts_table,
             generate_receipt_hash,
             upgrade_receipts_table,
@@ -16,6 +17,9 @@ from database.db import (
             find_matching_delivery,
             mark_delivery_paid,
             is_duplicate_receipt,
+            save_forecast,
+            validate_pending_forecasts,
+            get_forecast_accuracy,
         )
 import re
 import requests
@@ -35,6 +39,7 @@ CORS(app)
 create_receipts_table()
 upgrade_receipts_table()
 create_rates_table()
+create_forecast_log_table()
 seed_rates()
 
 
@@ -288,6 +293,7 @@ def get_weather():
 
             avg_rain_7d = sum(rain_values[:7]) / len(rain_values[:7]) if rain_values[:7] else 0
             avg_rain_14d = sum(rain_values) / len(rain_values) if rain_values else 0
+
             avg_max_temp = sum(max_temps) / len(max_temps) if max_temps else temperature
             avg_min_temp = sum(min_temps) / len(min_temps) if min_temps else temperature
 
@@ -297,6 +303,25 @@ def get_weather():
                 crop = "Wheat"
             else:
                 crop = "Sugarcane"
+
+                        district_key = f"{latitude},{longitude}"
+
+            # ===== Aaj ka current data = "actual" hai purani pending forecasts ke liye =====
+            validate_pending_forecasts(district_key, temperature, humidity, rain_values[0] if rain_values else 0)
+
+            # ===== Aaj ka naya 14-din ka forecast save karo future validation ke liye =====
+            daily_dates = daily.get("time", [])
+            for i in range(len(daily_dates)):
+                if i < len(max_temps) and i < len(min_temps):
+                    predicted_temp = (max_temps[i] + min_temps[i]) / 2
+                    predicted_rain = rain_values[i] if i < len(rain_values) else 0
+                    save_forecast(
+                        district=district_key,
+                        target_date=daily_dates[i],
+                        predicted_temp=round(predicted_temp, 1),
+                        predicted_humidity=humidity,  # approx, kyunki daily humidity forecast nahi hai abhi
+                        predicted_rain_pct=predicted_rain
+                    )
 
             return jsonify({
                 "temperature": temperature,
@@ -315,6 +340,14 @@ def get_weather():
         except Exception as e:
             print("WEATHER ROUTE ERROR:", e)
             return jsonify({"error": str(e)}), 500
+@app.route("/forecast-accuracy", methods=["GET"])
+def forecast_accuracy():
+     district = request.args.get("district", None)
+     days = request.args.get("days",default = 7, type=int)
+     accuracy = get_forecast_accuracy(district=district, days=days)
+     if accuracy is None:
+          return jsonify({"message": "Not enough validated data yet"}), 200
+     return jsonify(accuracy)
         
 @app.route("/upload", methods=["POST"])
 
