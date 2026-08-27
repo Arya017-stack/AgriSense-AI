@@ -1,3 +1,4 @@
+from datetime import datetime
 import sqlite3
 import re 
 import hashlib
@@ -224,6 +225,103 @@ def create_rates_table():
 
     conn.commit()
     conn.close()
+     
+
+def create_forecast_log_table():
+    conn = get_rate_connection()
+    cursor = conn.cursor()
+    cursor.execute(""" 
+        CREATE TABLE IF NOT EXISTS weather_forecast_log(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    DISTRICT TEXT,
+                    forecast_made_on TEXT,
+                    target_date TEXT,
+                    predicted_temp REAL,
+                    predicted_humidity REAL,
+                    predicted_rain_pct REAL,
+                    actual_temp REAL,
+                    actual_humidity REAL,
+                    actual_rain_pct REAL,
+                    is_validated INTEGER DEFAULT 0)
+        """)
+    conn.commit()
+    conn.close()
+
+
+
+def save_forecast(district, target_date, predicted_temp, predicted_humidity, predicted_rain_pct):
+    from datetime import datetime 
+    conn = get_rate_connection()
+    cursor = conn.cursor() 
+    today = datetime.now().strftime("%Y-%m-%d")
+
+    cursor.execute(""" 
+        SELECT COUNT(*) FROM weather_forecast_log
+        WHERE district = ? AND target_date = ? 
+        """, (district,target_date)) 
+    exists = cursor.fetchone()[0]
+    if exists == 0:
+        cursor.execute("""
+            INSERT INTO weather_forecast_log
+                (district, forecast_made_on, target_date, predicted_temp, predicted_humidity, predicted_rain_pct)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (district, today, target_date, predicted_temp, predicted_humidity, predicted_rain_pct))
+        conn.commit()
+    conn.close()
+
+
+
+def validate_pending_forecasts(district, actual_temp, actual_humidity, actual_rain_pct):
+    conn = get_rate_connection()
+    cursor =conn.cursor()
+    today = datetime.now().strftime("%Y-%m-%d")
+    cursor.execute(
+        """
+        UPDATE weather_forecast_log
+        SET actual_temp = ?, actual_humidity = ?, actual_rain_pct = ?, is_validated = 1
+        WHERE district = ? AND target_date = ? AND is_validated = 0
+    """, (actual_temp, actual_humidity, actual_rain_pct, district, today))
+    conn.commit()
+    conn.close()
+
+
+
+def get_forecast_accuracy(district=None, days=7):
+    conn  = get_rate_connection()
+    cursor = conn.cursor()
+    if district:
+        cursor.execute(
+            """
+            SELECT predicted_temp, actual_temp, predicted_humidity, actual_humidity
+            FROM weather_forecast_log
+            WHERE is_validated = 1 AND district = ?
+            ORDER BY target_date DESC LIMIT ?
+        """, (district, days))
+    else:
+        cursor.execute("""
+            SELECT predicted_temp, actual_temp, predicted_humidity, actual_humidity
+            FROM weather_forecast_log
+            WHERE is_validated = 1
+            ORDER BY target_date DESC LIMIT ?
+        """, (days,))
+    rows = cursor.fetchall()
+    conn.close()
+
+    if not rows:
+        return None
+
+    temp_errors = [abs(row["predicted_temp"] - row["actual_temp"]) for row in rows if row["actual_temp"] is not None]
+    humidity_errors = [abs(row["predicted_humidity"] - row["actual_humidity"]) for row in rows if row["actual_humidity"] is not None]
+
+    mae_temp = round(sum(temp_errors) / len(temp_errors), 2) if temp_errors else None
+    mae_humidity = round(sum(humidity_errors) / len(humidity_errors), 2) if humidity_errors else None
+
+    return{
+        "sample_size": len(rows),
+        "mae_temp": mae_temp,
+        "mae_humidity": mae_humidity
+    }
+
 
 def seed_rates():
 
