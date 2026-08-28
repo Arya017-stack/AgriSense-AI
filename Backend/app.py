@@ -304,7 +304,7 @@ def get_weather():
             else:
                 crop = "Sugarcane"
 
-                        district_key = f"{latitude},{longitude}"
+            district_key = f"{latitude},{longitude}"
 
             # ===== Aaj ka current data = "actual" hai purani pending forecasts ke liye =====
             validate_pending_forecasts(district_key, temperature, humidity, rain_values[0] if rain_values else 0)
@@ -340,6 +340,7 @@ def get_weather():
         except Exception as e:
             print("WEATHER ROUTE ERROR:", e)
             return jsonify({"error": str(e)}), 500
+        
 @app.route("/forecast-accuracy", methods=["GET"])
 def forecast_accuracy():
      district = request.args.get("district", None)
