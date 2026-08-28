@@ -425,6 +425,15 @@ async function loadWeather() {
           document.getElementById('weatherTempMain').innerText = '⚠️ Unavailable';
           document.getElementById('weatherTempRange').innerText = '';
           document.getElementById('cropSuggestion').innerText = 'N/A';
+          document.getElementById('rainValueToday').innerText = '-';
+          document.getElementById('rainValue7d').innerText = '-';
+          document.getElementById('rainValue14d').innerText = '-';
+          document.getElementById('rainBarToday').style.width = '0%';
+          document.getElementById('rainBar7d').style.width = '0%';
+          document.getElementById('rainBar14d').style.width = '0%';
+          document.getElementById('humidityCircle').innerText = '-';
+          document.getElementById('humidityStatus').innerText = '';
+          
           return;
         }
 
