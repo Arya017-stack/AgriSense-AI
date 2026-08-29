@@ -32,6 +32,73 @@ def create_receipts_table():
     conn.commit()
     conn.close()
     
+def create_crop_calendar_table():
+    conn = get_rate_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS crop_calendar(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            crop TEXT NOT NULL,
+            season TEXT NOT NULL,
+            region TEXT NOT NULL,
+            start_month INTEGER NOT NULL,
+            start_day INTEGER NOT NULL,
+            end_month INTEGER NOT NULL,
+            end_day INTEGER NOT NULL,
+            rain_need TEXT NOT NULL,
+            drought_tolerant INTEGER NOT NULL,
+            practice_weight INTEGER NOT NULL,
+            source TEXT,
+            last_verified TEXT
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+def seed_crop_calendar():
+    conn = get_rate_connection()
+    cursor = conn.cursor()
+
+    calendar_data = [
+        # crop, season, region, start_month, start_day, end_month, end_day, rain_need, drought_tolerant, practice_weight, source, last_verified
+        ("Cotton", "Kharif (Pre-Monsoon)", "Uttarakhand Terai", 5, 1, 5, 31, "medium", 0, 6, "ICAR-CICR", "2026-08-28"),
+        ("Bajra", "Kharif", "Uttarakhand Terai", 6, 15, 7, 15, "low-medium", 1, 5, "ICAR-VPKAS", "2026-08-28"),
+        ("Maize", "Kharif", "Uttarakhand Terai", 6, 15, 7, 15, "medium", 1, 6, "ICAR-VPKAS", "2026-08-28"),
+        ("Rice", "Kharif", "Uttarakhand Terai", 6, 15, 7, 31, "high", 0, 9, "ICAR-VPKAS", "2026-08-28"),
+        ("Sugarcane", "Spring Planting", "Uttarakhand Terai", 2, 15, 3, 31, "irrigated", 1, 8, "ICAR-IISR", "2026-08-28"),
+        ("Sugarcane", "Autumn Planting", "Uttarakhand Terai", 9, 15, 10, 31, "irrigated", 1, 5, "ICAR-IISR", "2026-08-28"),
+        ("Wheat", "Rabi", "Uttarakhand Terai", 10, 25, 12, 15, "low", 1, 9, "ICAR-VPKAS", "2026-08-28"),
+    ]
+
+    for crop, season, region, sm, sd, em, ed, rain_need, drought, weight, source, verified in calendar_data:
+        cursor.execute("""
+            SELECT COUNT(*) FROM crop_calendar
+            WHERE crop = ? AND season = ? AND region = ?
+        """, (crop, season, region))
+        exists = cursor.fetchone()[0]
+
+        if exists == 0:
+            cursor.execute("""
+                INSERT INTO crop_calendar
+                    (crop, season, region, start_month, start_day, end_month, end_day,
+                     rain_need, drought_tolerant, practice_weight, source, last_verified)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (crop, season, region, sm, sd, em, ed, rain_need, drought, weight, source, verified))
+
+    conn.commit()
+    conn.close()
+
+
+def get_crop_calendar_entries(region="Uttarakhand Terai"):
+    conn = get_rate_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT * FROM crop_calendar WHERE region = ?
+    """, (region,))
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
+
 
 def upgrade_receipts_table():
     conn = get_receipt_connection()
@@ -382,7 +449,6 @@ def seed_rates():
     conn.commit()
     conn.close()
 
-
 def get_rate(crop, state):
     conn = get_rate_connection()
     cursor = conn.cursor()
@@ -447,5 +513,4 @@ def mark_delivery_paid(receipt_id):
     """, (receipt_id,))
 
     conn.commit() 
-
     conn.close()

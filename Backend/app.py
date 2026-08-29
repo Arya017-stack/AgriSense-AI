@@ -20,6 +20,9 @@ from database.db import (
             save_forecast,
             validate_pending_forecasts,
             get_forecast_accuracy,
+            create_crop_calendar_table,
+            seed_crop_calendar,
+            get_crop_calendar_entries,
         )
 import re
 import requests
@@ -27,15 +30,7 @@ import traceback
 from datetime import datetime
 from datetime import date 
 
-CROP_CALENDAR = [
-    {"crop": "Cotton", "season": "Kharif (Pre-Monsoon)", "start": (5, 1),  "end": (5, 31),  "rain_need": "medium",      "drought_tolerant": False},
-    {"crop": "Bajra",     "season": "Kharif",               "start": (6, 15), "end": (7, 15),  "rain_need": "low-medium",  "drought_tolerant": True},
-    {"crop": "Maize",     "season": "Kharif",               "start": (6, 15), "end": (7, 15),  "rain_need": "medium",      "drought_tolerant": True},
-    {"crop": "Rice",      "season": "Kharif",               "start": (6, 15), "end": (7, 31),  "rain_need": "high",        "drought_tolerant": False},
-    {"crop": "Sugarcane", "season": "Spring Planting",      "start": (2, 15), "end": (3, 31),  "rain_need": "irrigated",   "drought_tolerant": True},
-    {"crop": "Sugarcane", "season": "Autumn Planting",      "start": (9, 15), "end": (10, 31), "rain_need": "irrigated",   "drought_tolerant": True},
-    {"crop": "Wheat",     "season": "Rabi",                 "start": (10, 25),"end": (12, 15), "rain_need": "low",         "drought_tolerant": True},
-]
+
 
 def days_until_window(today, start_month, start_day):
     start = date(today.year, start_month, start_day)
@@ -43,78 +38,6 @@ def days_until_window(today, start_month, start_day):
          start = date(today.year + 1, start_month, start_day)
     return (start - today).days
 
-def get_seasonal_crop_recommendation(rain_14d_avg, rain_7d_avg):
-    today = date.today()
-    active = []
-    upcoming = []
-
-    for entry in CROP_CALENDAR:
-        start = date(today.year, *entry["start"])
-        end = date(today.year, *entry["end"])
-        if start <= today <= end:
-            active.append(entry)
-        else:
-            days_away = days_until_window(today, *entry["start"])
-            if 0 < days_away <= 20:
-                upcoming.append((entry, days_away))
-
-    # Monsoon trend: 7-din avg 14-din avg se badh raha hai ya ghat raha hai
-    monsoon_trend = "steady"
-    if rain_7d_avg > rain_14d_avg + 10:
-        monsoon_trend = "intensifying"
-    elif rain_7d_avg < rain_14d_avg - 10:
-        monsoon_trend = "weakening"
-
-    if active:
-        best = None
-        for entry in active:
-            need = entry["rain_need"]
-            if need == "high":
-                fit = rain_14d_avg >= 55
-            elif need == "medium":
-                fit = 25 <= rain_14d_avg < 70
-            elif need == "low-medium":
-                fit = rain_14d_avg < 55
-            elif need == "low":
-                fit = rain_14d_avg < 30
-            else:  # irrigated
-                fit = True
-
-            if fit:
-                best = entry
-                break
-
-        if not best:
-            drought_options = [e for e in active if e["drought_tolerant"]]
-            best = drought_options[0] if drought_options else active[0]
-
-        return {
-            "recommended_crop": best["crop"],
-            "season": best["season"],
-            "status": "sow_now",
-            "monsoon_trend": monsoon_trend,
-            "reason": f"{best['season']} window abhi active hai. 14-din rain average {rain_14d_avg}% hai, jo {best['crop']} ke liye suitable hai.",
-            "alternatives": [e["crop"] for e in active if e["crop"] != best["crop"]]
-        }
-    if upcoming:
-         upcoming.sort(key=lambda x: x[1])
-         next_entry, days_away = upcoming[0]
-         return {
-            "recommended_crop": next_entry["crop"],
-            "season": next_entry["season"],
-            "status": "upcoming",
-            "days_until_sowing": days_away,
-            "monsoon_trend": monsoon_trend,
-            "reason": f"{next_entry['season']} ka sowing window {days_away} din mein shuru hoga. Monsoon trend abhi {monsoon_trend} lag raha hai.",
-            "alternatives": []
-        }
-    return {
-        "recommended_crop": None,
-        "status": "off_season",
-        "monsoon_trend": monsoon_trend,
-        "reason": "Agle 20 dino mein koi major sowing window nahi hai.",
-        "alternatives": []
-    }
 
 reader = None
 def get_reader():
@@ -130,7 +53,9 @@ create_receipts_table()
 upgrade_receipts_table()
 create_rates_table()
 create_forecast_log_table()
+create_crop_calendar_table()
 seed_rates()
+seed_crop_calendar()
 
 
 UPLOAD_FOLDER = "uploads"
@@ -146,7 +71,74 @@ def home():
                 "message":"AgriSense AI Backend Running 🚀"
             }
 
+def get_seasonal_crop_recommendation(rain_14d_avg, rain_7d_avg):
+    today = date.today()
+    calendar_entries = get_crop_calendar_entries()
 
+    active = []
+    upcoming = []
+
+    for entry in calendar_entries:
+        start = date(today.year, entry["start_month"], entry["start_day"])
+        end = date(today.year, entry["end_month"], entry["end_day"])
+        if start <= today <= end:
+            active.append(entry)
+        else:
+            days_away = days_until_window(today, entry["start_month"], entry["start_day"])
+            if 0 < days_away <= 20:
+                upcoming.append((entry, days_away))
+
+    monsoon_trend = "steady"
+    if rain_7d_avg > rain_14d_avg + 10:
+        monsoon_trend = "intensifying"
+    elif rain_7d_avg < rain_14d_avg - 10:
+        monsoon_trend = "weakening"
+
+    if active:
+        def fits_rain(entry):
+            need = entry["rain_need"]
+            if need == "high":
+                return rain_14d_avg >= 55
+            elif need == "medium":
+                return 25 <= rain_14d_avg < 70
+            elif need == "low-medium":
+                return rain_14d_avg < 55
+            elif need == "low":
+                return rain_14d_avg < 30
+            else:
+                return True
+
+        best = max(active, key=lambda e: e["practice_weight"] if fits_rain(e) else 0)
+
+        return {
+            "recommended_crop": best["crop"],
+            "season": best["season"],
+            "status": "sow_now",
+            "monsoon_trend": monsoon_trend,
+            "reason": f"{best['season']} window abhi active hai. 14-din rain average {rain_14d_avg}% hai, jo {best['crop']} ke liye suitable hai. (Source: {best['source']})",
+            "alternatives": [e["crop"] for e in active if e["crop"] != best["crop"]]
+        }
+
+    if upcoming:
+         upcoming.sort(key=lambda x: x[1])
+         next_entry, days_away = upcoming[0]
+         return {
+            "recommended_crop": next_entry["crop"],
+            "season": next_entry["season"],
+            "status": "upcoming",
+            "days_until_sowing": days_away,
+            "monsoon_trend": monsoon_trend,
+            "reason": f"Is waqt koi active sowing window nahi hai. Agla najdeek window {next_entry['season']} ({next_entry['crop']}) hai, jo {days_away} din mein shuru hoga.",
+            "alternatives": []
+        }
+
+    return {
+        "recommended_crop": None,
+        "status": "off_season",
+        "monsoon_trend": monsoon_trend,
+        "reason": "Agle 20 dino mein koi major sowing window nahi hai.",
+        "alternatives": []
+    }
 
 def generate_ai_alerts(text, crop, amount):
 
