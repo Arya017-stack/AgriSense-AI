@@ -25,6 +25,96 @@ import re
 import requests
 import traceback
 from datetime import datetime
+from datetime import date 
+
+CROP_CALENDAR = [
+    {"crop": "Cotton", "season": "Kharif (Pre-Monsoon)", "start": (5, 1),  "end": (5, 31),  "rain_need": "medium",      "drought_tolerant": False},
+    {"crop": "Bajra",     "season": "Kharif",               "start": (6, 15), "end": (7, 15),  "rain_need": "low-medium",  "drought_tolerant": True},
+    {"crop": "Maize",     "season": "Kharif",               "start": (6, 15), "end": (7, 15),  "rain_need": "medium",      "drought_tolerant": True},
+    {"crop": "Rice",      "season": "Kharif",               "start": (6, 15), "end": (7, 31),  "rain_need": "high",        "drought_tolerant": False},
+    {"crop": "Sugarcane", "season": "Spring Planting",      "start": (2, 15), "end": (3, 31),  "rain_need": "irrigated",   "drought_tolerant": True},
+    {"crop": "Sugarcane", "season": "Autumn Planting",      "start": (9, 15), "end": (10, 31), "rain_need": "irrigated",   "drought_tolerant": True},
+    {"crop": "Wheat",     "season": "Rabi",                 "start": (10, 25),"end": (12, 15), "rain_need": "low",         "drought_tolerant": True},
+]
+
+def days_until_window(today, start_month, start_day):
+    start = date(today.year, start_month, start_day)
+    if start < today:
+         start = date(today.year + 1, start_month, start_day)
+    return (start - today).days
+
+def get_seasonal_crop_recommendation(rain_14d_avg, rain_7d_avg):
+    today = date.today()
+    active = []
+    upcoming = []
+
+    for entry in CROP_CALENDAR:
+        start = date(today.year, *entry["start"])
+        end = date(today.year, *entry["end"])
+        if start <= today <= end:
+            active.append(entry)
+        else:
+            days_away = days_until_window(today, *entry["start"])
+            if 0 < days_away <= 20:
+                upcoming.append((entry, days_away))
+
+    # Monsoon trend: 7-din avg 14-din avg se badh raha hai ya ghat raha hai
+    monsoon_trend = "steady"
+    if rain_7d_avg > rain_14d_avg + 10:
+        monsoon_trend = "intensifying"
+    elif rain_7d_avg < rain_14d_avg - 10:
+        monsoon_trend = "weakening"
+
+    if active:
+        best = None
+        for entry in active:
+            need = entry["rain_need"]
+            if need == "high":
+                fit = rain_14d_avg >= 55
+            elif need == "medium":
+                fit = 25 <= rain_14d_avg < 70
+            elif need == "low-medium":
+                fit = rain_14d_avg < 55
+            elif need == "low":
+                fit = rain_14d_avg < 30
+            else:  # irrigated
+                fit = True
+
+            if fit:
+                best = entry
+                break
+
+        if not best:
+            drought_options = [e for e in active if e["drought_tolerant"]]
+            best = drought_options[0] if drought_options else active[0]
+
+        return {
+            "recommended_crop": best["crop"],
+            "season": best["season"],
+            "status": "sow_now",
+            "monsoon_trend": monsoon_trend,
+            "reason": f"{best['season']} window abhi active hai. 14-din rain average {rain_14d_avg}% hai, jo {best['crop']} ke liye suitable hai.",
+            "alternatives": [e["crop"] for e in active if e["crop"] != best["crop"]]
+        }
+    if upcoming:
+         upcoming.sort(key=lambda x: x[1])
+         next_entry, days_away = upcoming[0]
+         return {
+            "recommended_crop": next_entry["crop"],
+            "season": next_entry["season"],
+            "status": "upcoming",
+            "days_until_sowing": days_away,
+            "monsoon_trend": monsoon_trend,
+            "reason": f"{next_entry['season']} ka sowing window {days_away} din mein shuru hoga. Monsoon trend abhi {monsoon_trend} lag raha hai.",
+            "alternatives": []
+        }
+    return {
+        "recommended_crop": None,
+        "status": "off_season",
+        "monsoon_trend": monsoon_trend,
+        "reason": "Agle 20 dino mein koi major sowing window nahi hai.",
+        "alternatives": []
+    }
 
 reader = None
 def get_reader():
@@ -41,7 +131,6 @@ upgrade_receipts_table()
 create_rates_table()
 create_forecast_log_table()
 seed_rates()
-
 
 
 UPLOAD_FOLDER = "uploads"
@@ -303,6 +392,7 @@ def get_weather():
                 crop = "Wheat"
             else:
                 crop = "Sugarcane"
+            seasonal = get_seasonal_crop_recommendation(round(avg_rain_14d, 1), round(avg_rain_7d, 1))
 
             district_key = f"{latitude},{longitude}"
 
@@ -323,7 +413,7 @@ def get_weather():
                         predicted_rain_pct=predicted_rain
                     )
 
-            return jsonify({
+            return jsonify ({
                 "temperature": temperature,
                 "humidity": humidity,
                 "rain_today": rain_values[0] if rain_values else 0,
@@ -331,7 +421,8 @@ def get_weather():
                 "rain_14day_avg": round(avg_rain_14d, 1),
                 "avg_max_temp_14d": round(avg_max_temp, 1),
                 "avg_min_temp_14d": round(avg_min_temp, 1),
-                "recommended_crop": crop
+                "recommended_crop": crop,
+                "seasonal_recommendation": seasonal
             })
 
         except requests.exceptions.RequestException as e:
