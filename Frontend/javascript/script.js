@@ -392,6 +392,11 @@
       historyBody.innerHTML = '';
 
       receipts.forEach((receipt) => {
+        const isManual = receipts.is_manual_entry ===  1;
+        const proofcell = isManual
+        ?  '—'
+        : `<a href="http://127.0.0.1:5000/uploads/${receipt.receipt_name}" target="_blank" style="color:#4ade80;">📄 View</a>`;
+
         historyBody.innerHTML += `
                           <tr>
                               <td>${receipt.receipt_name}</td>
@@ -401,6 +406,7 @@
                               <td>${receipt.expected_payment_date || '-'}</td>
                               <td>${receipt.amount}</td>
                               <td>${receipt.crop}</td>
+                              <td>${proofCekk}</td>
                           </tr>
                       `;
   });

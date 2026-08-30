@@ -29,7 +29,7 @@ import requests
 import traceback
 from datetime import datetime
 from datetime import date 
-
+from flask import send_from_directory
 
 
 def days_until_window(today, start_month, start_day):
@@ -298,7 +298,6 @@ def get_receipts():
 
             return jsonify(receipts)
 
-
 def calculate_days_pending(delivery_date_str):
         if not delivery_date_str or delivery_date_str == "Not Found":
             return None
@@ -336,6 +335,11 @@ def get_all_receipts_with_status():
                 r["risk_tier"] = None
 
         return receipts
+
+@app.route("/uploads/<filename>")
+def get_uploaded_file(filename):
+      return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
+    
 
 @app.route("/dashboard", methods=["GET"])
 def dashboard():
