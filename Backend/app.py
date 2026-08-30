@@ -115,7 +115,9 @@ def get_seasonal_crop_recommendation(rain_14d_avg, rain_7d_avg):
             "season": best["season"],
             "status": "sow_now",
             "monsoon_trend": monsoon_trend,
+
             "reason": f"{best['season']} window abhi active hai. 14-din rain average {rain_14d_avg}% hai, jo {best['crop']} ke liye suitable hai. (Source: {best['source']})",
+
             "alternatives": [e["crop"] for e in active if e["crop"] != best["crop"]]
         }
 
