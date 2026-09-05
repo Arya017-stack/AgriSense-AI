@@ -887,7 +887,7 @@ def manual_entry():
                 expected_payment_date = None,
                 days_pending = 0
             )
-
+            #bai lekin isme ye bhi ho skta tha meko toh ni pata tha ki ases bhi ho ta hai ye return jasonify 
             return jsonify({
                 "message": "Manual entry saved successfully",
                 "mill_name": mill_name,

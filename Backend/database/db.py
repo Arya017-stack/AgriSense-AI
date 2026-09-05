@@ -67,6 +67,7 @@ def seed_crop_calendar():
         ("Rice", "Kharif", "Uttarakhand Terai", 6, 15, 7, 31, "high", 0, 9, "ICAR-VPKAS", "2026-08-28"),
         ("Sugarcane", "Spring Planting", "Uttarakhand Terai", 2, 15, 3, 31, "irrigated", 1, 8, "ICAR-IISR", "2026-08-28"),
         ("Sugarcane", "Autumn Planting", "Uttarakhand Terai", 9, 15, 10, 31, "irrigated", 1, 5, "ICAR-IISR", "2026-08-28"),
+        ("Sugarcane", "Spring Planting (Local)", "Uttarakhand Terai", 4, 1, 4, 30, "irrigated", 1, 7, "Local Farmer Testimony (Haridwar area)", "2026-08-30"),
         ("Wheat", "Rabi", "Uttarakhand Terai", 10, 25, 12, 15, "low", 1, 9, "ICAR-VPKAS", "2026-08-28"),
     ]
 
@@ -198,6 +199,14 @@ def get_dashboard_summary():
     cursor = conn.cursor()
     summary = {}
 
+        # Sabse zyada frequent crop nikaalo
+    cursor.execute("""
+        SELECT crop, COUNT(*) as cnt FROM receipts
+        GROUP BY crop ORDER BY cnt DESC LIMIT 1
+    """)
+    top_crop_row = cursor.fetchone()
+    summary["top_crop"] = top_crop_row["crop"] if top_crop_row else "N/A"
+    
     # total receipts
     cursor.execute("SELECT COUNT(*) FROM receipts")
     summary["total_receipts"] = cursor.fetchone()[0]
